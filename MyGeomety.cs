@@ -201,35 +201,49 @@ namespace floating_horyzon
         public void DeleteInvisible()
         {
             List<int[]> res_indices = new List<int[]>();
+            List<Point3D> points = new List<Point3D>(this.points);
             for (int i = 0; i < nx - 1; ++i)
             {
                 double y_max = double.MinValue;
                 double y_min = double.MaxValue;
+                bool first_it = true;
                 for (int j = 0; j < i; ++j)
                 {
-                    if ((points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][0]].Y > y_max ||
-                        points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][2]].Y > y_max) &&
-                        (points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][1]].Y > y_max ||
-                        points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][3]].Y > y_max))
+                    var ind = indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)];
+                    var p0 = points[ind[0]];
+                    var p1 = points[ind[1]];
+                    var p2 = points[ind[2]];
+                    var p3 = points[ind[3]];
+                    if ((p0.Y > y_max || p2.Y > y_max) &&(p1.Y > y_max || p3.Y > y_max))
                     {
-                        res_indices.Add(indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)]);
-                        y_max = Math.Max(Math.Max(points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][0]].Y,
-                                                  points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][1]].Y),
-                                         Math.Max(points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][2]].Y,
-                                                  points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][3]].Y));
+                        for (int k = 0; k < 4; k++)
+                        {
+                            var temp = points[ind[k]];
+                            if (temp.Y < y_min && !first_it)
+                            {
+                                points.Add(new Point3D(temp.X, y_min, temp.Z));
+                                ind[k] = points.Count() - 1;
+                            }
+                        }
+                        res_indices.Add(ind);
+                        y_max = Math.Max(Math.Max(p0.Y,p1.Y),Math.Max(p2.Y,p3.Y));
                     }
 
-                    if ((points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][0]].Y < y_min ||
-                        points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][2]].Y < y_min) &&
-                        (points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][1]].Y < y_min ||
-                        points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][3]].Y < y_min))
+                    if ((p0.Y < y_min || p2.Y < y_min) && (p1.Y < y_min || p3.Y < y_min))
                     {
-                        res_indices.Add(indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)]);
-                        y_min = Math.Min(Math.Min(points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][0]].Y,
-                                                  points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][1]].Y),
-                                         Math.Min(points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][2]].Y,
-                                                  points[indices[(nz - (2 + j)) * (nz - 1) + (i - j - 1)][3]].Y));
+                        for (int k = 0; k < 4; k++)
+                        {
+                            var temp = points[ind[k]];
+                            if (temp.Y > y_max && !first_it)
+                            {
+                                points.Add(new Point3D(temp.X, y_max, temp.Z));
+                                ind[k] = points.Count() - 1;
+                            }
+                        }
+                        res_indices.Add(ind);
+                        y_min = Math.Min(Math.Min(p0.Y, p1.Y), Math.Min(p2.Y, p3.Y));
                     }
+                    first_it = false;
                 }
             }
 
@@ -238,34 +252,47 @@ namespace floating_horyzon
             {
                 double y_max = double.MinValue;
                 double y_min = double.MaxValue;
+                bool first_it = true;
                 for (int j = i; j >= 0; --j)
                 {
-                    if ((points[indices[(j + 1) * nx - (i + 2)][0]].Y > y_max ||
-                        points[indices[(j + 1) * nx - (i + 2)][2]].Y > y_max) &&
-                        (points[indices[(j + 1) * nx - (i + 2)][1]].Y > y_max ||
-                        points[indices[(j + 1) * nx - (i + 2)][3]].Y > y_max))
+                    var ind = indices[(j + 1) * nx - (i + 2)];
+                    var p0 = points[ind[0]];
+                    var p1 = points[ind[1]];
+                    var p2 = points[ind[2]];
+                    var p3 = points[ind[3]];
+                    if ((p0.Y > y_max || p2.Y > y_max) && (p1.Y > y_max || p3.Y > y_max))
                     {
-                        res_indices.Add(indices[(j + 1) * nx - (i + 2)]);
-                        y_max = Math.Max(Math.Max(points[indices[(j + 1) * nx - (i + 2)][0]].Y,
-                                                  points[indices[(j + 1) * nx - (i + 2)][1]].Y),
-                                         Math.Max(points[indices[(j + 1) * nx - (i + 2)][2]].Y,
-                                                  points[indices[(j + 1) * nx - (i + 2)][3]].Y));
+                        for (int k = 0; k < 4; k++)
+                        {
+                            var temp = points[ind[k]];
+                            if (temp.Y < y_min && !first_it)
+                            {
+                                points.Add(new Point3D(temp.X, y_min, temp.Z));
+                                ind[k] = points.Count() - 1;
+                            }
+                        }
+                        res_indices.Add(ind);
+                        y_max = Math.Max(Math.Max(p0.Y, p1.Y), Math.Max(p2.Y, p3.Y));
                     }
-
-                    if ((points[indices[(j + 1) * nx - (i + 2)][0]].Y < y_min ||
-                        points[indices[(j + 1) * nx - (i + 2)][2]].Y < y_min) &&
-                        (points[indices[(j + 1) * nx - (i + 2)][1]].Y < y_min ||
-                        points[indices[(j + 1) * nx - (i + 2)][3]].Y < y_min))
+                    if ((p0.Y < y_min || p2.Y < y_min) && (p1.Y < y_min || p3.Y < y_min))
                     {
-                        res_indices.Add(indices[(j + 1) * nx - (i + 2)]);
-                        y_min = Math.Min(Math.Min(points[indices[(j + 1) * nx - (i + 2)][0]].Y,
-                                                  points[indices[(j + 1) * nx - (i + 2)][1]].Y),
-                                         Math.Min(points[indices[(j + 1) * nx - (i + 2)][2]].Y,
-                                                  points[indices[(j + 1) * nx - (i + 2)][3]].Y));
+                        for (int k = 0; k < 4; k++)
+                        {
+                            var temp = points[ind[k]];
+                            if (temp.Y > y_max && !first_it)
+                            {
+                                points.Add(new Point3D(temp.X, y_max, temp.Z));
+                                ind[k] = points.Count() - 1;
+                            }
+                        }
+                        res_indices.Add(ind);
+                        y_min = Math.Min(Math.Min(p0.Y, p1.Y), Math.Min(p2.Y, p3.Y));
                     }
+                    first_it = false;
                 }
             }
             indices = res_indices.ToArray();
+            this.points = points.ToArray();
         }
     }
 
@@ -284,6 +311,7 @@ namespace floating_horyzon
         public Point3D Down { get { return -Up; } }
 
         public Matrix ViewProjection => Athens.Translate(-Position) * Athens.RotateY(-AngleY) * Athens.RotateX(-AngleX) * Projection;
+        public Matrix DeleteProjection => Athens.Translate(-Position) * Athens.RotateY(-AngleY) * Athens.RotateX(-AngleX) * Athens.OrthogonalProjection();
 
         public Camera(Point3D position, double angleY, double angleX, Matrix projection)
         {

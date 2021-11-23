@@ -9,12 +9,12 @@ namespace floating_horyzon
     {
         private static double Func(double x, double y)
         {
-            //double r = 12*x * x + 12*y * y;
-            double r = x * x + y * y;
+            double r = 12 * x * x + 12 * y * y;
+            //double r = x * x + y * y;
             return Math.Cos(r) / (r + 1);
         }
-        
-        public static Mesh GetMesh(double x0, double x1, double dx, double z0, double z1, double dz,double AngleX = Math.PI/4, double AngleY = Math.PI / 2, double AngleZ = Math.PI / 4, double scale = 1)
+
+        public static Mesh GetMesh(Camera camera, double x0, double x1, double dx, double z0, double z1, double dz)
         {
             int nx = (int)((x1 - x0) / dx);
             int nz = (int)((z1 - z0) / dz);
@@ -25,7 +25,8 @@ namespace floating_horyzon
                 {
                     var x = x0 + dx * i;
                     var z = z0 + dz * j;
-                    vertices[i * nz + j] = new Point3D(x*scale, Func(x, z)*scale, z*scale);
+                    vertices[i * nz + j] = new Point3D(x, Func(x, z), z) * camera.DeleteProjection;
+                    //vertices[i * nz + j] = new Point3D(x, Func(x, z), z) * camera.ViewProjection;
                 }
             for (int i = 0; i < nx - 1; ++i)
                 for (int j = 0; j < nz - 1; j++)
@@ -38,17 +39,22 @@ namespace floating_horyzon
                     };
                 }
 
-			Mesh m = new Mesh(vertices, indices,nx,nz);
+            Mesh m = new Mesh(vertices, indices, nx, nz);
 
-            m.Apply(Athens.RotateX(-AngleX));
-            m.Apply(Athens.RotateZ(-AngleZ));
-            m.Apply(Athens.RotateY(-AngleY));
 
-            m.DeleteInvisible();
+            //m.Apply(Athens.Translate(dist));
+            //m.Apply(Athens.RotateX(-AngleX));
+            //m.Apply(Athens.RotateZ(-AngleZ));
+            //m.Apply(Athens.RotateY(-AngleY));
 
-            m.Apply(Athens.RotateY(AngleY));
-            m.Apply(Athens.RotateZ(AngleZ));
-            m.Apply(Athens.RotateX(AngleX));
+            //m.Apply(camera.ViewProjection);
+            
+
+
+            //m.Apply(Athens.RotateY(AngleY));
+            //m.Apply(Athens.RotateZ(AngleZ));
+            //m.Apply(Athens.RotateX(AngleX));
+            //m.Apply(Athens.Translate(-dist));
 
             return m;
         }
